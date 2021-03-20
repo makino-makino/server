@@ -4,6 +4,7 @@ import time
 import json
 import numpy as np
 import cv2
+import base64
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
 # from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
@@ -28,11 +29,9 @@ def index():
 def img():
     if request.method == 'POST':
         data = request.json['img']
-        npimg = np.fromstring(data, dtype=np.uint8); 
-        source = cv2.imdecode(npimg, 1)
-
-        image = cv2.imread(source)
-
+        buf_decode = base64.b64decode(data)
+        npimg = np.fromstring(buf_decode, dtype=np.uint8); 
+        image = cv2.imdecode(npimg, 1)
         image_gs = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         cascade = cv2.CascadeClassifier("./haarcascade_frontalface_alt.xml")
 
@@ -46,9 +45,8 @@ def img():
                 if image.shape[0]<64:
                     continue
                 image = cv2.resize(image,(64,64))
-
-                fileName=os.path.join(out_dir + names[i],str(num)+".jpg")
-                cv2.imwrite(str(fileName),image)
+                _, buf = cv2.imencode(".png", image)
+                base64Image = base64.b64encode(buf)
                 print(str(num)+".jpgを保存しました.")
                 return("OK")
         else:
