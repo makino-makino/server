@@ -35,8 +35,7 @@ def img():
         image_gs = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         cascade = cv2.CascadeClassifier("./haarcascade_frontalface_alt.xml")
 
-        # face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors=2,minSize=(64,64))
-        face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors = 0, minSize=(64,64))
+        face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors = 2, minSize=(64,64))
 
         if len(face_list) > 0:
             print(face_list)
