@@ -35,20 +35,24 @@ def img():
         image_gs = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         cascade = cv2.CascadeClassifier("./haarcascade_frontalface_alt.xml")
 
-
-        face_list=cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors=2,minSize=(64,64))
+        # face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors=2,minSize=(64,64))
+        face_list = cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors = 0, minSize=(64,64))
 
         if len(face_list) > 0:
+            print(face_list)
             for rect in face_list:
-                x,y,width,height=rect
+                image = cv2.imdecode(npimg, 1)
+                x, y, width, height = rect
                 image = image[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]
-                if image.shape[0]<64:
+                # print(image)
+                if image.shape[0] < 64:
+                    print("これはうごかない")
                     continue
                 image = cv2.resize(image,(64,64))
                 _, buf = cv2.imencode(".png", image)
                 base64Image = base64.b64encode(buf)
-                print(str(num)+".jpgを保存しました.")
-                return("OK")
+                print(base64Image)
+            return("OK")
         else:
             print("no face")
             return("no face")
