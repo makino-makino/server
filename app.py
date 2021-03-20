@@ -1,6 +1,7 @@
 import os
 import io
 import time
+import json
 import numpy as np
 import cv2
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
@@ -22,6 +23,38 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/img', methods=['GET', 'POST'])
+def img():
+    if request.method == 'POST':
+        data = request.json['img']
+        npimg = np.fromstring(data, dtype=np.uint8); 
+        source = cv2.imdecode(npimg, 1)
+
+        image = cv2.imread(source)
+
+        image_gs = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        cascade = cv2.CascadeClassifier("./haarcascade_frontalface_alt.xml")
+
+
+        face_list=cascade.detectMultiScale(image_gs, scaleFactor=1.1, minNeighbors=2,minSize=(64,64))
+
+        if len(face_list) > 0:
+            for rect in face_list:
+                x,y,width,height=rect
+                image = image[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]
+                if image.shape[0]<64:
+                    continue
+                image = cv2.resize(image,(64,64))
+
+                fileName=os.path.join(out_dir + names[i],str(num)+".jpg")
+                cv2.imwrite(str(fileName),image)
+                print(str(num)+".jpgを保存しました.")
+                return("OK")
+        else:
+            print("no face")
+            return("no face")
+        return(data)
 
 @app.route('/send', methods=['GET', 'POST'])
 def send():
